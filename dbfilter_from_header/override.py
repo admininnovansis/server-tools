@@ -12,12 +12,15 @@ from odoo.tools import config
 db_filter_org = http.db_filter
 
 
-def db_filter(dbs, httprequest=None):
-    dbs = db_filter_org(dbs, httprequest)
-    httprequest = httprequest or http.request.httprequest
+def db_filter(dbs, host=None):
+    dbs_orig = db_filter_org(dbs, host)
+    httprequest = http.request.httprequest
     db_filter_hdr = httprequest.environ.get("HTTP_X_ODOO_DBFILTER")
+    rex = f"^{db_filter_hdr}$"
     if db_filter_hdr:
-        dbs = [db for db in dbs if re.match(db_filter_hdr, db)]
+        dbs = [db for db in dbs if re.match(rex, db)]
+    else:
+        dbs = dbs_orig
     return dbs
 
 
